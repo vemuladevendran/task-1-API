@@ -1,7 +1,7 @@
 'use strict'
 
 const express = require('express');
-const cors = require('cors'); 
+const cors = require('cors');
 require('./db');
 const User = require('./user.model')
 
@@ -14,7 +14,12 @@ app.use(cors());
 
 app.post('/api/v1/users', async (req, res, next) => {
     try {
-        const data = await User.create(req.body );
+        const user = await User.findOne({ userName: req.body.userName });
+        if (user) {
+            return res.status(400).json({ message: 'User Name Already exist' });
+        }
+
+        const data = await User.create(req.body);
         res.json(data);
     } catch (error) {
         console.log(error);
@@ -54,7 +59,7 @@ app.delete('/api/v1/users/:id', async (req, res, next) => {
     try {
 
         const results = await User.findByIdAndRemove(req.params.id);
-        res.json({message:results.firstName + 'account deleted'});
+        res.json({ message: results.firstName + 'account deleted' });
 
     } catch (error) {
         console.error(error);
